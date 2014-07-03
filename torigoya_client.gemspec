@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = TorigoyaClient::VERSION
   spec.authors       = ["yutopp"]
   spec.email         = ["yutopp@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{A client library for TorigoyaCage}
+  spec.description   = %q{This library can control TorigoyaCage}
+  spec.homepage      = "http://yutopp.net/"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -20,4 +20,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "msgpack"
 end
