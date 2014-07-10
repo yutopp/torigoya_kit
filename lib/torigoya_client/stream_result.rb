@@ -2,14 +2,20 @@
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
 
 module TorigoyaClient
+  class ResultMode
+    CompileMode = 0
+    LinkMode    = 1
+    RunMode     = 2
+  end
+
   #
   class StreamAccept
   end
 
   #
   class StreamOutput
-    StdoutFd = 0
-    StderrFd = 1
+    StdoutFd    = 0
+    StderrFd    = 1
 
     def initialize(fd, buffer)
       @fd = fd

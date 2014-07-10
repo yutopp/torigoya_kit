@@ -14,21 +14,22 @@ module TorigoyaClient
 	MessageKindAcceptRequest			= 0
 	MessageKindTicketRequest			= 1
 	MessageKindUpdateRepositoryRequest	= 2
-	MessageKindUpdateProcTableRequest	= 3
-	MessageKindGetProcTableRequest		= 4
+    MessageKindReloadProcTableRequest	= 3
+	MessageKindUpdateProcTableRequest	= 4
+	MessageKindGetProcTableRequest		= 5
 
 	# Sent from server
-    MessageKindAccept                   = 5
-	MessageKindOutputs					= 6
-	MessageKindResult					= 7
-	MessageKindSystemError				= 8
-	MessageKindExit						= 9
+    MessageKindAccept                   = 6
+	MessageKindOutputs					= 7
+	MessageKindResult					= 8
+	MessageKindSystemError				= 9
+	MessageKindExit						= 10
 
-    MessageKindSystemResult             = 10
-    MessageKindProcTable                = 11
+    MessageKindSystemResult             = 11
+    MessageKindProcTable                = 12
 
 	#
-	MessageKindIndexEnd					= 11
+	MessageKindIndexEnd					= 12
 	MessageKindInvalid					= 0xff
 
     #
