@@ -8,17 +8,28 @@ module TorigoyaClient
   #
   class Protocol
     #
-    HeaderIndexBegin    = 0
+	MessageKindIndexBegin				= 0
 
-    HeaderRequest       = 0
-    HeaderOutputs       = 1
-    HeaderResult        = 2
-    HeaderSystemError   = 3
-    HeaderExit          = 4
+	# Sent from client
+	MessageKindAcceptRequest			= 0
+	MessageKindTicketRequest			= 1
+	MessageKindUpdateRepositoryRequest	= 2
+	MessageKindUpdateProcTableRequest	= 3
+	MessageKindGetProcTableRequest		= 4
 
-    HeaderIndexEnd      = 4
+	# Sent from server
+    MessageKindAccept                   = 5
+	MessageKindOutputs					= 6
+	MessageKindResult					= 7
+	MessageKindSystemError				= 8
+	MessageKindExit						= 9
 
-    HeaderInvalid       = 0xff
+    MessageKindSystemResult             = 10
+    MessageKindProcTable                = 11
+
+	#
+	MessageKindIndexEnd					= 11
+	MessageKindInvalid					= 0xff
 
     #
     HeaderLength = 5
@@ -26,7 +37,7 @@ module TorigoyaClient
     #
     class Packet
       def initialize(kind, data)
-        if kind < HeaderIndexBegin || kind > HeaderIndexEnd
+        if kind < MessageKindIndexBegin || kind > MessageKindIndexEnd
           raise "invalid header"
         end
 
@@ -43,64 +54,64 @@ module TorigoyaClient
     end
 
     #
-    def self.encode(kind, data)
+    def self.encode(kind, data = nil)
       return Packet.new(kind, data).to_binary
     end
 
-    #
-    def self.decode_from_stream(io, &block)
-      buffer = ""
-      accepted = false
+    def self.encode_to(io, kind, data = nil)
+      io.write(encode(kind, data))
+    end
 
-      loop do
-        b = io.readpartial(1024)
-        buffer << b
-
-        if buffer.size < HeaderLength
-          continue
-        end
-
-        #
-        kind = buffer[0].unpack("c")[0]         # 8bit char
-
-        #
-        length = buffer[1..4].unpack("I")[0]    # 32bit unsigned int
-
-        #
-        if buffer.size >= HeaderLength + length
-          content = buffer[HeaderLength...(HeaderLength + length)]
-
-          #
-          o = Protocol.decode(kind, MessagePack.unpack(content))
-          if o.is_a?(StreamExit) then accepted = true end
-          block.call(o) unless block.nil?
-
-          # assign rest
-          buffer = buffer[(HeaderLength + length)..buffer.size]
-        end
-
+    def self.get_responses(io)
+      results = []
+      decode_from_stream(io) do |r|
+        results << r
       end
 
-    rescue EOFError
-      # puts "EOF"
-
-    ensure
-      return accepted
+      return results
     end
 
     #
-    def self.decode(kind, decoded)
+    def self.decode(buffer)
+      if buffer.size >= HeaderLength
+        # read kind
+        kind = buffer[0].unpack("c")[0]         # 8bit char
+
+        # read length
+        length = buffer[1..4].unpack("I")[0]    # 32bit unsigned int(little endian)
+
+        if buffer.size >= HeaderLength + length
+          return true, kind, length, buffer[HeaderLength...(HeaderLength + length)]
+        end
+      end
+
+      return false, nil, nil, nil
+    end
+
+    def self.cat_rest(buffer, length)
+      return buffer[(HeaderLength + length)..buffer.size]
+    end
+
+    #
+    def self.decode_as_client(kind, decoded)
       case kind
-      when HeaderRequest
-        raise "Request message was not suppored in client"
-      when HeaderOutputs
+      when MessageKindAccept
+        return StreamAccept.new
+      when MessageKindOutputs
         return StreamOutputResult.from_tuple(decoded)
-      when HeaderResult
+      when MessageKindResult
         return StreamExecutedResult.from_tuple(decoded)
-      when HeaderSystemError
+      when MessageKindSystemError
         return StreamSystemError.from_tuple(decoded)
-      when HeaderExit
+      when MessageKindExit
         return StreamExit.from_tuple(decoded)
+
+      when MessageKindSystemResult
+        return StreamSystemStatusResult.new(decoded)
+      when MessageKindProcTable
+        return decoded
+      else
+        raise "Client :: Result kind(#{kind}) is not supported by clitnt side"
       end
     end
 

@@ -3,6 +3,10 @@
 
 module TorigoyaClient
   #
+  class StreamAccept
+  end
+
+  #
   class StreamOutput
     StdoutFd = 0
     StderrFd = 1
@@ -25,7 +29,7 @@ module TorigoyaClient
     end
   end
 
-  #
+  # related to MessageKindOutputs
   class StreamOutputResult
     def initialize(mode, index, output)
       @mode = mode
@@ -81,7 +85,7 @@ module TorigoyaClient
     end
   end
 
-  #
+  # related to StreamExecutedResult
   class StreamExecutedResult
     def initialize(mode, index, result)
       @mode = mode
@@ -105,7 +109,25 @@ module TorigoyaClient
     end
   end
 
-  #
+  # related to MessageKindSystemError
+  class StreamSystemError
+    def initialize(message)
+      @message = message
+    end
+    attr_reader :message
+
+    def self.from_tuple(message)
+      raise "type error [expected String but #{message.class}] :: #{self}" unless message.is_a?(String)
+
+      return StreamSystemError.new(message)
+    end
+
+    def to_s
+      return "#{self.class}/[#{@message}]"
+    end
+  end
+
+  # related to MessageKindExit
   class StreamExit
     def initialize(message)
       @message = message
@@ -124,21 +146,10 @@ module TorigoyaClient
   end
 
   #
-  class StreamSystemError
-    def initialize(message)
-      @message = message
+  class StreamSystemStatusResult
+    def initialize(status)
+      @status = status
     end
-    attr_reader :message
-
-    def self.from_tuple(message)
-      raise "type error [expected String but #{message.class}] :: #{self}" unless message.is_a?(String)
-
-      return StreamSystemError.new(message)
-    end
-
-    def to_s
-      return "#{self.class}/[#{@message}]"
-    end
+    attr_reader :status
   end
-
 end # module TorigoyaClient
