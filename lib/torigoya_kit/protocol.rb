@@ -4,7 +4,7 @@
 require 'msgpack'
 require_relative 'stream_result'
 
-module TorigoyaClient
+module TorigoyaKit
   #
   class Protocol
     #
@@ -112,9 +112,9 @@ module TorigoyaClient
       when MessageKindProcTable
         return decoded
       else
-        raise "Client :: Result kind(#{kind}) is not supported by clitnt side"
+        raise "Protocol :: Result kind(#{kind}) is not supported by clitnt side"
       end
     end
 
   end # class Protocol
-end # module TorigoyaClient
+end # module TorigoyaKit

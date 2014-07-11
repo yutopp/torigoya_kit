@@ -3,13 +3,13 @@
 require_relative '../spec_helper'
 
 describe :request_protocol do
-  b = TorigoyaClient::Protocol::Packet.new(TorigoyaClient::Protocol::MessageKindAcceptRequest, 12345)
+  b = TorigoyaKit::Protocol::Packet.new(TorigoyaKit::Protocol::MessageKindAcceptRequest, 12345)
 
   it "size of kind should be 1" do
     expect(b.kind.size).to eq 1
   end
 
-  it "kind should be TorigoyaQueue::Protocol::MessageKindAcceptRequest" do
+  it "kind should be TorigoyaKit::Protocol::MessageKindAcceptRequest" do
     expect(b.kind.bytes).to eq [0x00]
   end
 

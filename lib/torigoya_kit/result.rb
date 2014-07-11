@@ -3,7 +3,7 @@
 
 require_relative 'stream_result'
 
-module TorigoyaClient
+module TorigoyaKit
   class TicketResultUnit
     def initialize()
       @out = ""
@@ -21,4 +21,4 @@ module TorigoyaClient
     end
     attr_accessor :compile, :link, :run
   end
-end # module TorigoyaClient
+end # module TorigoyaKit

@@ -1,7 +1,7 @@
 # Copyright (c) 2014 yutopp
 # Licenced under the MIT License (http://www.opensource.org/licenses/mit-license.php)
 
-module TorigoyaClient
+module TorigoyaKit
   class ResultMode
     CompileMode = 0
     LinkMode    = 1
@@ -158,4 +158,4 @@ module TorigoyaClient
     end
     attr_reader :status
   end
-end # module TorigoyaClient
+end # module TorigoyaKit

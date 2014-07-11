@@ -8,7 +8,7 @@ require_relative 'stream_result'
 require_relative 'result'
 require_relative 'protocol'
 
-module TorigoyaClient
+module TorigoyaKit
   class Session
     Version = "v2014/7/5"
 
@@ -211,4 +211,4 @@ module TorigoyaClient
       end
     end
   end # class Session
-end # module TorigoyaClient
+end # module TorigoyaKit

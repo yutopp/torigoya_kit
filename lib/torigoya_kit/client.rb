@@ -3,7 +3,7 @@
 
 require_relative 'session'
 
-module TorigoyaClient
+module TorigoyaKit
   class Client
     def initialize(host, port)
       @host = host
@@ -42,4 +42,4 @@ module TorigoyaClient
       return Session.new(@host, @port)
     end
   end # class Client
-end # module TorigoyaClient
+end # module TorigoyaKit

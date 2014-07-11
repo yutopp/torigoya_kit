@@ -3,7 +3,7 @@
 
 require 'msgpack'
 
-module TorigoyaClient
+module TorigoyaKit
   # contains source codes / inputs data
   class SourceData
     def self.make_with_compress(name, code)
@@ -129,4 +129,4 @@ module TorigoyaClient
     end
   end
 
-end # module TorigoyaClient
+end # module TorigoyaKit

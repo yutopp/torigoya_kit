@@ -1,14 +1,14 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'torigoya_client/version'
+require 'torigoya_kit/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "torigoya_client"
-  spec.version       = TorigoyaClient::VERSION
+  spec.name          = "torigoya_kit"
+  spec.version       = TorigoyaKit::VERSION
   spec.authors       = ["yutopp"]
   spec.email         = ["yutopp@gmail.com"]
-  spec.summary       = %q{A client library for TorigoyaCage}
+  spec.summary       = %q{Toolkits for Torigoya}
   spec.description   = %q{This library can control TorigoyaCage}
   spec.homepage      = "http://yutopp.net/"
   spec.license       = "MIT"
