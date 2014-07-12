@@ -121,8 +121,26 @@ module TorigoyaKit
 
       unless @structured_command.nil?
         raise InvalidFormatError.new("type of structured_command must be Array") unless @structured_command.is_a?(Array)
-        @structured_command.each do |e|
-          raise InvalidFormatError.new("type of element of structured_command must be Command") unless e.is_a?(Command)
+        @structured_command.map! do |e|
+          if e.is_a?(Hash)
+            raise InvalidFormatError.new("couln't convert type of element of structured_command") unless e.size == 1
+            fl = e.flatten
+            if fl[1].nil?
+              Command.new(fl[0])
+            else
+              Command.new(fl[0], fl[1])
+            end
+          elsif e.is_a?(Array)
+            raise InvalidFormatError.new("couln't convert type of element of structured_command") unless e.length == 1 || e.length == 2
+            if e.length == 1
+              Command.new(e[0])
+            elsif e.length == 2
+              Command.new(e[0], e[1])
+            end
+          else
+            raise InvalidFormatError.new("type of element of structured_command must be Command") unless e.is_a?(Command)
+            e
+          end
         end
       else
         @structured_command = []

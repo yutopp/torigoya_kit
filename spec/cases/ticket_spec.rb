@@ -54,28 +54,46 @@ describe :ticket do
                ]
     expected = TorigoyaKit::ExecutionSetting.new("test command", commands, 100, 200)
 
-    commands_dummy = [TorigoyaKit::Command.new("A=", "B"),
-                      TorigoyaKit::Command.new("unit")
-                     ]
-    expected_dummy = TorigoyaKit::ExecutionSetting.new("test command", commands, 100, 200)
+    cloned_commands = [TorigoyaKit::Command.new("A=", "B"),
+                    TorigoyaKit::Command.new("unit")
+                   ]
+    cloned_dummy = TorigoyaKit::ExecutionSetting.new("test command", cloned_commands, 100, 200)
 
-    expect(expected).to eq expected_dummy
+    expect(cloned_dummy).to eq expected
   end
 
   it "setting" do
-    expected_es = TorigoyaKit::ExecutionSetting.new("", [], 0, 0)
-    expect(expected_es).to eq dummy_es
+    cloned_es = TorigoyaKit::ExecutionSetting.new("", [], 0, 0)
+    expect(cloned_es).to eq dummy_es
   end
 
   it "build inst" do
-    expected_es = TorigoyaKit::ExecutionSetting.new("", [], 0, 0)
-    expected_bi = TorigoyaKit::BuildInstruction.new(expected_es, expected_es)
+    cloned_es = TorigoyaKit::ExecutionSetting.new("", [], 0, 0)
+    cloned_bi = TorigoyaKit::BuildInstruction.new(cloned_es, cloned_es)
 
-    expect(expected_bi).to eq dummy_bi
+    expect(cloned_bi).to eq dummy_bi
   end
 
   it "run inst" do
-    expected_ri = TorigoyaKit::RunInstruction.new([])
-    expect(expected_ri).to eq dummy_ri
+    cloned_ri = TorigoyaKit::RunInstruction.new([])
+    expect(cloned_ri).to eq dummy_ri
+  end
+
+  it "setting conversion list" do
+    commands = [TorigoyaKit::Command.new("A=", "B"),
+                TorigoyaKit::Command.new("unit")
+               ]
+    expected = TorigoyaKit::ExecutionSetting.new("test command", commands, 100, 200)
+
+    expect(TorigoyaKit::ExecutionSetting.new("test command", [["A=", "B"], ["unit"]], 100, 200)).to eq expected
+  end
+
+  it "setting conversion list" do
+    commands = [TorigoyaKit::Command.new("A=", "B"),
+                TorigoyaKit::Command.new("unit")
+               ]
+    expected = TorigoyaKit::ExecutionSetting.new("test command", commands, 100, 200)
+
+    expect(TorigoyaKit::ExecutionSetting.new("test command", [{"A=" => "B"}, {"unit"=>nil}], 100, 200)).to eq expected
   end
 end
