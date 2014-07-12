@@ -6,3 +6,5 @@ require_relative 'torigoya_kit/stream_result'
 require_relative 'torigoya_kit/result'
 require_relative 'torigoya_kit/session'
 require_relative 'torigoya_kit/client'
+
+require_relative 'torigoya_kit/package_utils.rb'
