@@ -2,5 +2,4 @@ source 'https://rubygems.org'
 
 # Specify your gem's dependencies in torigoya_kit.gemspec
 gemspec
-
-gem 'msgpack'
+'
