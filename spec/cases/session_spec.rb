@@ -5,7 +5,7 @@ require_relative '../spec_helper'
 describe :session do
   it "session proc exec_ticket" do
     s = TorigoyaKit::Session.new("localhost", 49800)
-    p s.exec_ticket(make_ticket())
+    # p s.exec_ticket(make_ticket())
   end
 
   it "session proc update_proc_table" do
