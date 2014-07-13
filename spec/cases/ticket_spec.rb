@@ -96,4 +96,9 @@ describe :ticket do
 
     expect(TorigoyaKit::ExecutionSetting.new("test command", [{"A=" => "B"}, {"unit"=>nil}], 100, 200)).to eq expected
   end
+
+  it "source default" do
+    expected = TorigoyaKit::SourceData.new("*default*", "hoge")
+    expect(TorigoyaKit::SourceData.new(nil, "hoge")).to eq expected
+  end
 end

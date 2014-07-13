@@ -17,8 +17,10 @@ module TorigoyaKit
                 code
               end
       @is_compressed = is_compressed
+
+      validate
     end
-    attr_reader :name, :code
+    attr_reader :name, :code, :is_compressed
 
     def to_tuple
       return [@name,
@@ -33,15 +35,19 @@ module TorigoyaKit
 
     def ==(rhs)
       return @name == rhs.name &&
-        @code == rhs.code &&
-        @is_compressed && rhs.is_compressed
+        @code == rhs.code
+        @is_compressed == rhs.is_compressed
     end
 
     private
     def validate
-      raise InvalidFormatError.new("name must be String") unless @name.is_a?(String)
+      if @name.nil?
+        @name = "*default*"
+      else
+        raise InvalidFormatError.new("name must be String") unless @name.is_a?(String)
+      end
       raise InvalidFormatError.new("code must be String") unless @code.is_a?(String)
-      raise InvalidFormatError.new("is_compressed must be Boolean") unless @is_compressed.is_a?(TrueClass) && @is_compressed.is_a?(FalseClass)
+      raise InvalidFormatError.new("is_compressed must be Boolean") unless @is_compressed.is_a?(TrueClass) || @is_compressed.is_a?(FalseClass)
     end
   end
 
