@@ -297,7 +297,9 @@ module TorigoyaKit
       @source_codes.each do |e|
         raise InvalidFormatError.new("type of element of source_codes must be SourceData") unless e.is_a?(SourceData)
       end
-      raise InvalidFormatError.new("type of build_inst must be BuildInstruction") unless @build_inst.is_a?(BuildInstruction)
+      unless @build_inst.nil?
+        raise InvalidFormatError.new("type of build_inst must be BuildInstruction") unless @build_inst.is_a?(BuildInstruction)
+      end
       raise InvalidFormatError.new("type of run_inst must be RunInstruction") unless @run_inst.is_a?(RunInstruction)
     end
   end
