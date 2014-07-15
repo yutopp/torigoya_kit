@@ -46,6 +46,18 @@ describe :ticket do
     expect do
       TorigoyaKit::Ticket.new("", 0, "", [], dummy_bi, dummy_ri)
     end.to_not raise_error
+
+    expect do
+      TorigoyaKit::Ticket.new("", 0, "", [], dummy_bi, dummy_ri).to_msgpack
+    end.to_not raise_error
+
+    expect do
+      TorigoyaKit::Ticket.new("", 0, "", [], nil, dummy_ri)
+    end.to_not raise_error
+
+    expect do
+      TorigoyaKit::Ticket.new("", 0, "", [], nil, dummy_ri).to_msgpack
+    end.to_not raise_error
   end
 
   it "construct execution setting" do

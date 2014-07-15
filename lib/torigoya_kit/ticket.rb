@@ -270,7 +270,7 @@ module TorigoyaKit
               @proc_id,
               @proc_version,
               @source_codes.map {|x| x.to_tuple},
-              @build_inst.to_tuple,
+              unless @build_inst.nil? then @build_inst.to_tuple else nil end,
               @run_inst.to_tuple
              ]
     end
