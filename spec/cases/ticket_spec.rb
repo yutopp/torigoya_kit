@@ -36,11 +36,11 @@ describe :ticket do
     end.to raise_error(TorigoyaKit::InvalidFormatError)
 
     expect do
-      TorigoyaKit::Ticket.new("", 0, "", [], nil, nil)
+      TorigoyaKit::Ticket.new("", 0, "", [], nil, 2)
     end.to raise_error(TorigoyaKit::InvalidFormatError)
 
     expect do
-      TorigoyaKit::Ticket.new("", 0, "", [], dummy_bi, nil)
+      TorigoyaKit::Ticket.new("", 0, "", [], dummy_bi, 2)
     end.to raise_error(TorigoyaKit::InvalidFormatError)
 
     expect do

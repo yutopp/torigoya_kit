@@ -273,7 +273,7 @@ module TorigoyaKit
               @proc_version,
               @source_codes.map {|x| x.to_tuple},
               unless @build_inst.nil? then @build_inst.to_tuple else nil end,
-              @run_inst.to_tuple
+              unless @run_inst.nil? then @run_inst.to_tuple else nil end
              ]
     end
 
@@ -302,7 +302,9 @@ module TorigoyaKit
       unless @build_inst.nil?
         raise InvalidFormatError.new("#{self.class}: type of build_inst must be BuildInstruction (but #{@build_inst.class})") unless @build_inst.is_a?(BuildInstruction)
       end
-      raise InvalidFormatError.new("#{self.class}: type of run_inst must be RunInstruction (but #{@run_inst.class})") unless @run_inst.is_a?(RunInstruction)
+      unless @run_inst.nil?
+        raise InvalidFormatError.new("#{self.class}: type of run_inst must be RunInstruction (but #{@run_inst.class})") unless @run_inst.is_a?(RunInstruction)
+      end
     end
   end
 
