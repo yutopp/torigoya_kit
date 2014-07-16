@@ -44,10 +44,10 @@ module TorigoyaKit
       if @name.nil?
         @name = "*default*"
       else
-        raise InvalidFormatError.new("name must be String") unless @name.is_a?(String)
+        raise InvalidFormatError.new("#{self.class}: name must be String (but #{@name.class})") unless @name.is_a?(String)
       end
-      raise InvalidFormatError.new("code must be String") unless @code.is_a?(String)
-      raise InvalidFormatError.new("is_compressed must be Boolean") unless @is_compressed.is_a?(TrueClass) || @is_compressed.is_a?(FalseClass)
+      raise InvalidFormatError.new("#{self.class}: code must be String (but #{@code.class})") unless @code.is_a?(String)
+      raise InvalidFormatError.new("#{self.class}: is_compressed must be Boolean (but #{@is_compressed.class})") unless @is_compressed.is_a?(TrueClass) || @is_compressed.is_a?(FalseClass)
     end
   end
 
@@ -80,9 +80,9 @@ module TorigoyaKit
     private
     def validate
       unless @key.nil?
-        raise InvalidFormatError.new("key must be String") unless @key.is_a?(String)
+        raise InvalidFormatError.new("#{self.class}: key must be String (but #{@key.class})") unless @key.is_a?(String)
       end
-      raise InvalidFormatError.new("value must be String") unless @value.is_a?(String)
+      raise InvalidFormatError.new("#{self.class}: value must be String (but #{@value.class})") unless @value.is_a?(String)
     end
   end
 
@@ -120,16 +120,16 @@ module TorigoyaKit
     private
     def validate
       unless @command_line.nil?
-        raise InvalidFormatError.new("type of command_line must be String") unless @command_line.is_a?(String)
+        raise InvalidFormatError.new("#{self.class}: type of command_line must be String (but #{@command_line.class})") unless @command_line.is_a?(String)
       else
         @command_line = ""
       end
 
       unless @structured_command.nil?
-        raise InvalidFormatError.new("type of structured_command must be Array") unless @structured_command.is_a?(Array)
+        raise InvalidFormatError.new("#{self.class}: type of structured_command must be Array (but #{@structured_command.class})") unless @structured_command.is_a?(Array)
         @structured_command.map! do |e|
           if e.is_a?(Hash)
-            raise InvalidFormatError.new("couln't convert type of element of structured_command") unless e.size == 1
+            raise InvalidFormatError.new("#{self.class}: couln't convert type of element of structured_command (Hash: size is not 1)") unless e.size == 1
             fl = e.flatten
             if fl[1].nil?
               Command.new(fl[0])
@@ -137,14 +137,14 @@ module TorigoyaKit
               Command.new(fl[0], fl[1])
             end
           elsif e.is_a?(Array)
-            raise InvalidFormatError.new("couln't convert type of element of structured_command") unless e.length == 1 || e.length == 2
+            raise InvalidFormatError.new("#{self.class}: couln't convert type of element of structured_command (Array: length is not 1 or 2)") unless e.length == 1 || e.length == 2
             if e.length == 1
               Command.new(e[0])
             elsif e.length == 2
               Command.new(e[0], e[1])
             end
           else
-            raise InvalidFormatError.new("type of element of structured_command must be Command") unless e.is_a?(Command)
+            raise InvalidFormatError.new("#{self.class}: type of element of structured_command must be Command (but #{e.class})") unless e.is_a?(Command)
             e
           end
         end
@@ -152,8 +152,8 @@ module TorigoyaKit
         @structured_command = []
       end
 
-      raise InvalidFormatError.new("type of cpu_limit must be Integer") unless @cpu_limit.is_a?(Integer)
-      raise InvalidFormatError.new("type of memory_limit must be Integer") unless @memory_limit.is_a?(Integer)
+      raise InvalidFormatError.new("#{self.class}: type of cpu_limit must be Integer (but #{@cpu_limit.class})") unless @cpu_limit.is_a?(Integer)
+      raise InvalidFormatError.new("#{self.class}: type of memory_limit must be Integer (but #{@memory_limit.class})") unless @memory_limit.is_a?(Integer)
     end
   end
 
@@ -169,7 +169,7 @@ module TorigoyaKit
 
     def to_tuple
       return [@compile_setting.to_tuple,
-              @link_setting.to_tuple
+              unless @link_setting.nil? then @link_setting.to_tuple else nil end
              ]
     end
 
@@ -184,8 +184,10 @@ module TorigoyaKit
 
     private
     def validate()
-      raise InvalidFormatError.new("type of compile_setting must be ExecutionSetting") unless @compile_setting.is_a?(ExecutionSetting)
-      raise InvalidFormatError.new("type of link_setting must be ExecutionSetting") unless @link_setting.is_a?(ExecutionSetting)
+      raise InvalidFormatError.new("#{self.class}: type of compile_setting must be ExecutionSetting (but #{@compile_setting.class})") unless @compile_setting.is_a?(ExecutionSetting)
+      unless @link_setting.nil?
+        raise InvalidFormatError.new("#{self.class}: type of link_setting must be ExecutionSetting (but #{@link_setting.class})") unless @link_setting.is_a?(ExecutionSetting)
+      end
     end
   end
 
@@ -215,9 +217,9 @@ module TorigoyaKit
     private
     def validate()
       unless @stdin.nil?
-        raise InvalidFormatError.new("type of stdin must be SourceData") unless @stdin.is_a?(SourceData)
+        raise InvalidFormatError.new("#{self.class}: type of stdin must be SourceData (but #{@stdin.class})") unless @stdin.is_a?(SourceData)
       end
-      raise InvalidFormatError.new("type of run_setting must be ExecutionSetting") unless @run_setting.is_a?(ExecutionSetting)
+      raise InvalidFormatError.new("#{self.class}: type of run_setting must be ExecutionSetting (but #{@run_setting.class})") unless @run_setting.is_a?(ExecutionSetting)
     end
   end
 
@@ -244,9 +246,9 @@ module TorigoyaKit
 
     private
     def validate()
-      raise InvalidFormatError.new("type of inputs must be Array") unless @inputs.is_a?(Array)
+      raise InvalidFormatError.new("#{self.class}: type of inputs must be Array (but #{@inputs.class})") unless @inputs.is_a?(Array)
       @inputs.each do |e|
-        raise InvalidFormatError.new("type of element of inputs must be Input") unless e.is_a?(Input)
+        raise InvalidFormatError.new("#{self.class}: type of element of inputs must be Input (but #{e.class})") unless e.is_a?(Input)
       end
     end
   end
@@ -290,17 +292,17 @@ module TorigoyaKit
 
     private
     def validate()
-      raise InvalidFormatError.new("type of base_name must be String") unless @base_name.is_a?(String)
-      raise InvalidFormatError.new("type of proc_id must be Integer") unless @proc_id.is_a?(Integer)
-      raise InvalidFormatError.new("type of proc_version must be String") unless @proc_version.is_a?(String)
-      raise InvalidFormatError.new("type of source_codes must be Array") unless @source_codes.is_a?(Array)
+      raise InvalidFormatError.new("#{self.class}: type of base_name must be String (but #{@base_name.class})") unless @base_name.is_a?(String)
+      raise InvalidFormatError.new("#{self.class}: type of proc_id must be Integer (but #{@proc_id.class})") unless @proc_id.is_a?(Integer)
+      raise InvalidFormatError.new("#{self.class}: type of proc_version must be String (but #{@proc_version.class})") unless @proc_version.is_a?(String)
+      raise InvalidFormatError.new("#{self.class}: type of source_codes must be Array (but #{@source_codes.class})") unless @source_codes.is_a?(Array)
       @source_codes.each do |e|
-        raise InvalidFormatError.new("type of element of source_codes must be SourceData") unless e.is_a?(SourceData)
+        raise InvalidFormatError.new("#{self.class}: type of element of source_codes must be SourceData (but #{e.class})") unless e.is_a?(SourceData)
       end
       unless @build_inst.nil?
-        raise InvalidFormatError.new("type of build_inst must be BuildInstruction") unless @build_inst.is_a?(BuildInstruction)
+        raise InvalidFormatError.new("#{self.class}: type of build_inst must be BuildInstruction (but #{@build_inst.class})") unless @build_inst.is_a?(BuildInstruction)
       end
-      raise InvalidFormatError.new("type of run_inst must be RunInstruction") unless @run_inst.is_a?(RunInstruction)
+      raise InvalidFormatError.new("#{self.class}: type of run_inst must be RunInstruction (but #{@run_inst.class})") unless @run_inst.is_a?(RunInstruction)
     end
   end
 
