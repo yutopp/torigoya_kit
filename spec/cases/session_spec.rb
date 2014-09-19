@@ -3,16 +3,15 @@
 require_relative '../spec_helper'
 
 describe :session do
+  port = 23432
+
   it "session proc exec_ticket" do
-    s = TorigoyaKit::Session.new("localhost", 49800)
+    s = TorigoyaKit::Session.new("localhost", port)
     # p s.exec_ticket(make_ticket())
   end
 
   it "session proc update_proc_table" do
-    #s = TorigoyaKit::Session.new("localhost", 22222)
-    #s.update_packages()
-    #s.exec_ticket(make_ticket())
-    #s.update_proc_table()
-    #p s.get_proc_table()
+    s = TorigoyaKit::Session.new("localhost", port)
+    expect(s.reload_proc_table()).to eq nil
   end
 end
