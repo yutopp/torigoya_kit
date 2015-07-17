@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["yutopp@gmail.com"]
   spec.summary       = %q{Toolkits for Torigoya}
   spec.description   = %q{This library can control TorigoyaCage}
-  spec.homepage      = "http://yutopp.net/"
+  spec.homepage      = "https://github.com/yutopp/torigoya_kit"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")

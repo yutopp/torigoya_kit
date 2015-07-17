@@ -12,33 +12,33 @@ module TorigoyaKit
 
     ####
     def exec_ticket(ticket)
-      return get_session().exec_ticket(ticket)
+      return new_session().exec_ticket(ticket)
     end
 
     def exec_ticket_with_stream(ticket, &block)
-      return get_session().exec_ticket_with_stream(ticket, &block)
+      return new_session().exec_ticket_with_stream(ticket, &block)
     end
 
     ####
     def update_packages()
-      return get_session().update_packages()
+      return new_session().update_packages()
     end
 
     ####
     def reload_proc_table()
-      return get_session().reload_proc_table()
+      return new_session().reload_proc_table()
     end
 
     def update_proc_table()
-      return get_session().update_proc_table()
+      return new_session().update_proc_table()
     end
 
     def get_proc_table()
-      return get_session().get_proc_table()
+      return new_session().get_proc_table()
     end
 
     private
-    def get_session()
+    def new_session()
       return Session.new(@host, @port)
     end
   end # class Client

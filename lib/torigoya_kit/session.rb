@@ -10,7 +10,7 @@ require_relative 'protocol'
 
 module TorigoyaKit
   class Session
-    Version = "v2014/7/5"
+    Version = 20150715
 
     ########################################
     #
@@ -83,96 +83,52 @@ module TorigoyaKit
     ########################################
     #
     def exec_ticket_with_stream(ticket, &block)
-      write(Protocol::MessageKindTicketRequest, ticket)
-      read_stream(&block)
+      send(Protocol::MessageKindTicketRequest, ticket)
+
+      recv_stream(&block)
     end
 
     ########################################
     #
     def update_packages()
-      write(Protocol::MessageKindUpdateRepositoryRequest)
-      res = read()
-      if res.is_a?(StreamSystemStatusResult)
-        return
-      elsif res.is_a?(StreamSystemError)
-        raise res.message
-      else
-        raise "Unexpected error: unknown message was recieved (#{res.class})"
+      send(Protocol::MessageKindUpdateRepositoryRequest, nil)
+
+      recv_stream() do |res|
+        if res.is_a?(StreamSystemResult)
+          return res.status
+        elsif res.is_a?(StreamSystemError)
+          raise res.message
+        else
+          raise "Unexpected error: unknown message was recieved (#{res.class})"
+        end
       end
     end
 
     ########################################
-    #
-    def reload_proc_table()
-      write(Protocol::MessageKindReloadProcTableRequest)
-      res = read()
-      if res.is_a?(StreamSystemStatusResult)
-        return
-      elsif res.is_a?(StreamSystemError)
-        raise res.message
-      else
-        raise "Unexpected error: unknown message was recieved (#{res.class})"
-      end
-    end
-
-    ########################################
-    #
-    def update_proc_table()
-      write(Protocol::MessageKindUpdateProcTableRequest)
-      res = read()
-      if res.is_a?(StreamSystemStatusResult)
-        return
-      elsif res.is_a?(StreamSystemError)
-        raise res.message
-      else
-        raise "Unexpected error: unknown message was recieved (#{res.class})"
-      end
-    end
-
-    ########################################
-    #
-    def get_proc_table()
-      write(Protocol::MessageKindGetProcTableRequest)
-      res = read()
-      if res.is_a?(Hash)
-        return res
-      elsif res.is_a?(StreamSystemError)
-        raise res.message
-      else
-        raise "Unexpected error: unknown message was recieved (#{res.class})"
-      end
-    end
-
-    ########################################
-    #########################################
     private
 
     ########################################
     #
-    def read()
-      accepted = false
+    def recv_frame_object()
       is_closed = false
 
       loop do
         begin
-          @buffer << @socket.readpartial(1024)
+          @buffer << @socket.readpartial(8096)
         rescue EOFError
           is_closed = true
         end
 
-        is_recieved, kind, length, content = Protocol.decode(@buffer)
-        unless is_recieved
+        frame, @buffer = Protocol.decode(@buffer, Version)
+        if frame.nil?
           if is_closed
-            break
+            break   # finish loop
           else
-            next
+            next    # try to read data
           end
         end
 
-        # set rest
-        @buffer = Protocol.cat_rest(@buffer, length)
-
-        return Protocol.decode_as_client(kind, MessagePack.unpack(content))
+        return frame.get_object()
       end # loop
 
       return nil
@@ -180,35 +136,21 @@ module TorigoyaKit
 
     ########################################
     #
-    def read_stream(&block)
+    def recv_stream(&block)
       loop do
-        o = read()
-        break if o.nil?
+        obj = recv_frame_object()
+        raise "object is empty" if obj.nil?
 
-        break if o.is_a?(StreamExit)
-        block.call(o) unless block.nil?
+        break if obj.is_a?(StreamExit)
+        block.call(obj) unless block.nil?
       end
     end
 
     ########################################
     #
-    def write(kind, *args)
-      expect_accepted_by_server()
-      Protocol.encode_to(@socket, kind, *args)
+    def send(kind, args)
+      @socket.write(Protocol.encode(kind, Version, args))
     end
 
-    ########################################
-    #
-    def expect_accepted_by_server
-      Protocol.encode_to(@socket, Protocol::MessageKindAcceptRequest, Version)
-      res = read()
-      if res.is_a?(StreamAccept)
-        return
-      elsif res.is_a?(StreamSystemError)
-        raise res.message
-      else
-        raise "Unexpected error: unknown message was recieved"
-      end
-    end
   end # class Session
 end # module TorigoyaKit

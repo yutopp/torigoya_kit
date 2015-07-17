@@ -11,109 +11,114 @@ module TorigoyaKit
 	MessageKindIndexBegin				= 0
 
 	# Sent from client
-	MessageKindAcceptRequest			= 0
 	MessageKindTicketRequest			= 1
 	MessageKindUpdateRepositoryRequest	= 2
-    MessageKindReloadProcTableRequest	= 3
-	MessageKindUpdateProcTableRequest	= 4
-	MessageKindGetProcTableRequest		= 5
 
 	# Sent from server
-    MessageKindAccept                   = 6
 	MessageKindOutputs					= 7
 	MessageKindResult					= 8
 	MessageKindSystemError				= 9
 	MessageKindExit						= 10
 
     MessageKindSystemResult             = 11
-    MessageKindProcTable                = 12
 
 	#
-	MessageKindIndexEnd					= 12
+	MessageKindIndexEnd					= 11
 	MessageKindInvalid					= 0xff
 
     #
-    HeaderLength = 5
+    HeaderLength = 2 + 1 + 4 + 4
 
     #
+    # Signature         [2]byte     //
+	# MessageKind       byte        //
+	# Version           [4]byte     // uint32, little endian
+	# Length            [4]byte     // uint32, little endian
+	# Message           []byte      // data, msgpacked
     class Packet
-      def initialize(kind, data)
+      Signature = "TG"
+
+      def initialize(kind, version, data)
         if kind < MessageKindIndexBegin || kind > MessageKindIndexEnd
           raise "invalid header"
         end
 
-        @kind = [kind].pack("C*")
-        @encoded_data = data.to_msgpack
-        @size = [@encoded_data.size].pack("V*")
+        @kind = [kind].pack("C*")               # byte
+        @version = [version].pack("V*")         # little endian, 32bit, unsigned int
+        @message = data.to_msgpack              # msgpacked
+        @length = [@message.size].pack("V*")    # little endian, 32bit, unsigned int
       end
-      attr_reader :kind, :size, :encoded_data
+      attr_reader :kind, :version, :message, :length
 
       #
       def to_binary
-        return @kind + @size + @encoded_data
+        return Signature + @kind + @version + @length + @message
       end
     end
 
-    #
-    def self.encode(kind, data = nil)
-      return Packet.new(kind, data).to_binary
-    end
-
-    def self.encode_to(io, kind, data = nil)
-      io.write(encode(kind, data))
-    end
-
-    def self.get_responses(io)
-      results = []
-      decode_from_stream(io) do |r|
-        results << r
+    class Frame
+      def initialize(kind, buffer)
+        @kind = kind
+        @raw_object = MessagePack.unpack(buffer)
       end
+      attr_reader :kind, :raw_object
 
-      return results
+      def get_object
+        case @kind
+        when MessageKindOutputs
+          return StreamOutputResult.from_hash(@raw_object)
+        when MessageKindResult
+          return StreamExecutedResult.from_hash(@raw_object)
+        when MessageKindSystemError
+          return StreamSystemError.new(@raw_object)
+        when MessageKindExit
+          return StreamExit.new(@raw_object)
+
+        when MessageKindSystemResult
+          return StreamSystemResult.new(@raw_object)
+        else
+          raise "Protocol :: Result kind(#{kind}) is not supported by clitnt side"
+        end
+      end
     end
 
-    #
-    def self.decode(buffer)
+    class InvalidFrame < RuntimeError
+    end
+
+    # ============================================================
+
+    def self.encode(kind, version, data)
+      return Packet.new(kind, version, data).to_binary
+    end
+
+    def self.decode(buffer, expected_version)
       if buffer.size >= HeaderLength
+        # read signature
+        signature = buffer[0...2]
+        if signature != Packet::Signature
+          raise InvalidFrame.new("Invalid Signature")
+        end
+
         # read kind
-        kind = buffer[0].unpack("c")[0]         # 8bit char
+        kind = buffer[2].unpack("c")[0]         # 8bit signed char
+
+        # read version
+        version = buffer[3...7].unpack("I")[0]  # 32bit unsigned int(little endian)
+        if version != expected_version
+          raise InvalidFrame.new("Invalid Version")
+        end
 
         # read length
-        length = buffer[1..4].unpack("I")[0]    # 32bit unsigned int(little endian)
+        length = buffer[7...11].unpack("I")[0]  # 32bit unsigned int(little endian)
 
+        # read body
         if buffer.size >= HeaderLength + length
-          return true, kind, length, buffer[HeaderLength...(HeaderLength + length)]
+          next_buffer = buffer[(HeaderLength + length)...buffer.size]
+          return Frame.new(kind, buffer[HeaderLength...(HeaderLength + length)]), next_buffer
         end
       end
 
-      return false, nil, nil, nil
-    end
-
-    def self.cat_rest(buffer, length)
-      return buffer[(HeaderLength + length)..buffer.size]
-    end
-
-    #
-    def self.decode_as_client(kind, decoded)
-      case kind
-      when MessageKindAccept
-        return StreamAccept.new
-      when MessageKindOutputs
-        return StreamOutputResult.from_tuple(decoded)
-      when MessageKindResult
-        return StreamExecutedResult.from_tuple(decoded)
-      when MessageKindSystemError
-        return StreamSystemError.from_tuple(decoded)
-      when MessageKindExit
-        return StreamExit.from_tuple(decoded)
-
-      when MessageKindSystemResult
-        return StreamSystemStatusResult.new(decoded)
-      when MessageKindProcTable
-        return decoded
-      else
-        raise "Protocol :: Result kind(#{kind}) is not supported by clitnt side"
-      end
+      return nil, buffer
     end
 
   end # class Protocol

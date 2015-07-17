@@ -4,14 +4,20 @@ require 'torigoya_kit'
 
 def make_ticket
   # source
-  source = TorigoyaKit::SourceData.new("prog.cpp", <<EOS
-#include <csignal>
-#include <iostream>
+  source = TorigoyaKit::SourceData.new("prog.c", <<EOS
+#include <stdio.h>
+#include <signal.h>
+#include <errno.h>
+#include <string.h>
 
 int main() {
-    std::cout << "hello!" << std::endl;
-    std::raise(8);
-    std::cout << "unreachable!" << std::endl;
+    puts("hello!");
+    if ( raise(9) != 0 ) {
+        printf("errno=%d : %s\\n", errno, strerror( errno ));
+    }
+    puts("unreachable!");
+
+    return 0;
 }
 EOS
 )
@@ -20,13 +26,30 @@ EOS
   sources = [source]
 
   # build instruction
-  bi = TorigoyaKit::BuildInstruction.new(TorigoyaKit::ExecutionSetting.new("", [], 10, 512 * 1024 * 1024),
-                                         TorigoyaKit::ExecutionSetting.new("", [], 10, 512 * 1024 * 1024)
-                                        )
+  compile_s = TorigoyaKit::ExecutionSetting.new(
+    ["/usr/bin/gcc", "-c", "prog.c", "-o", "prog.o"],
+    [],
+    10,
+    512 * 1024 * 1024
+  )
+  link_s = TorigoyaKit::ExecutionSetting.new(
+    ["/usr/bin/gcc", "prog.o", "-o", "prog.out"],
+    ["PATH=/usr/bin:/bin"],
+    10,
+    512 * 1024 * 1024
+  )
+  bi = TorigoyaKit::BuildInstruction.new(compile_s, link_s)
+
   # input
-  input = TorigoyaKit::Input.new(nil,
-                                 TorigoyaKit::ExecutionSetting.new("", [], 10, 512 * 1024 * 1024)
-                                 )
+  input = TorigoyaKit::Input.new(
+    nil,
+    TorigoyaKit::ExecutionSetting.new(
+      ["./prog.out"],
+      [],
+      10,
+      512 * 1024 * 1024
+    )
+  )
 
   # inputs
   inputs = [input]
@@ -35,7 +58,7 @@ EOS
   ri = TorigoyaKit::RunInstruction.new(inputs)
 
   # ticket!
-  ticket = TorigoyaKit::Ticket.new("aaa", 0, "test", sources, bi, ri)
+  ticket = TorigoyaKit::Ticket.new("", sources, bi, ri)
 
   return ticket
 end
