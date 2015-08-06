@@ -12,8 +12,8 @@ module TorigoyaKit
 
   #
   class StreamOutput
-    StdoutFd    = 0
-    StderrFd    = 1
+    StdoutFd    = 1
+    StderrFd    = 2
 
     def initialize(fd, buffer)
       @fd = fd

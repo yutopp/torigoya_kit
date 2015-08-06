@@ -73,8 +73,13 @@ module TorigoyaKit
 
         elsif res.is_a?(StreamSystemError)
           raise res.message
+
+        elsif res.is_a?(StreamExit)
+          break
+
         else
           raise "Unexpected error: unknown message was recieved (#{res.class})"
+
         end
       end
       return result
@@ -141,8 +146,9 @@ module TorigoyaKit
         obj = recv_frame_object()
         raise "object is empty" if obj.nil?
 
-        break if obj.is_a?(StreamExit)
+        will_terminate = obj.is_a?(StreamExit)
         block.call(obj) unless block.nil?
+        break if will_terminate
       end
     end
 
